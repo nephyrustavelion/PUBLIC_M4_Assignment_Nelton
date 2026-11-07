@@ -1,0 +1,12 @@
+
+.git
+.github
+
+target/
+*.log
+
+.env
+.env.*
+
+README.md
+screenshots/

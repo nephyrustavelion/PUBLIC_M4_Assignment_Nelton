@@ -29,3 +29,26 @@ git pull --ff-only
 
 git tag -a v0.1.0 -m "Initial TaskFlow release"
 git push origin v0.1.0 -->
+
+
+
+Render final url
+https://m4-assignment-nelton-taskflow.onrender.com/api/tasks
+
+Docker Hub image
+https://hub.docker.com/repository/docker/nephyrustavelion/taskflow/tags
+
+
+Git hub Actions
+https://github.com/nephyrustavelion/PUBLIC_M4_Assignment_Nelton/actions
+
+
+Option 1 added github actions
+
+Option 2 to do
+
+Option 3 not doing
+
+Option 4 did, explain how the ci.yml works
+
+Option 5 can use chatgpt to try to do

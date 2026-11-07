@@ -1,0 +1,124 @@
+#copied from lesson 4.9
+
+name: TaskFlow CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*' #added tags for versioned releases
+
+jobs:
+  # ==========================================
+  # BUILD JOB - Compile and package
+  # ==========================================
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Java 21 and cache Maven dependencies
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Install dependencies and build
+        run: |
+          echo "Building the application..."
+          mvn clean install -DskipTests
+
+      - name: Save JAR for the publish job
+        uses: actions/upload-artifact@v7
+        with:
+          name: app-jar
+          path: target/*.jar
+
+  # ==========================================
+  # TEST JOB - Run automated tests
+  # ==========================================
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Java 21 and cache Maven dependencies
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          mvn test
+
+      - name: Save test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: target/surefire-reports
+
+
+  # ==========================================
+  # PUBLISH JOB - Versioned Docker images
+  # ==========================================
+  publish:
+    runs-on: ubuntu-latest
+    needs: test
+
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Login to Docker Hub
+        run: |
+          printf '%s' "$DOCKER_TOKEN" |
+            docker login -u "$DOCKER_USERNAME" \
+              --password-stdin
+
+      - name: Build and publish versioned image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IMAGE="$DOCKER_USERNAME/taskflow"
+
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+
+            # Git tag: v0.1.0 -> Docker tag: 0.1.0
+            VERSION="${GITHUB_REF_NAME#v}"
+
+            docker build \
+              -t "$IMAGE:$VERSION" \
+              -t "$IMAGE:latest" .
+
+            docker push "$IMAGE:$VERSION"
+            docker push "$IMAGE:latest"
+
+          else
+
+            # Normal push to main
+            SHORT_SHA="${GITHUB_SHA::7}"
+
+            docker build \
+              -t "$IMAGE:sha-$SHORT_SHA" .
+
+            docker push "$IMAGE:sha-$SHORT_SHA"
+
+          fi
+
+

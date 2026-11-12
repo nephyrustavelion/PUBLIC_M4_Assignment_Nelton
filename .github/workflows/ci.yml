@@ -72,6 +72,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
 
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      SNYK_ORG: ${{ vars.SNYK_ORG }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -88,46 +92,26 @@ jobs:
         with:
           node-version: "22"
 
-      # Verify Maven and prepare dependencies
-      - name: Verify Maven
-        run: mvn -version
-
       - name: Prepare Maven dependencies
         run: mvn -B -ntp clean install -DskipTests
 
-      # Install the Snyk version tested locally
       - name: Install Snyk CLI
-        run: |
-          npm install -g snyk@1.1308.4
-          snyk --version
+        run: npm install -g snyk@1.1308.4
 
-      # Verify token is supplied, without printing it
-      - name: Check Snyk token
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-          if [ -z "$SNYK_TOKEN" ]; then
-            echo "SNYK_TOKEN is missing"
-            exit 1
-          fi
-          echo "SNYK_TOKEN is configured"
-
-      # SCA - Maven dependency scanning
+      # SCA - Dependency scanning
       - name: Snyk dependency scan
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           snyk test \
+            --org="$SNYK_ORG" \
             --severity-threshold=high \
-            --maven-skip-wrapper \
-            -d
+            --maven-skip-wrapper
 
-      # SAST - Java source code scanning
+      # SAST - Source code scanning
       - name: Snyk code scan
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
-          snyk code test --severity-threshold=high
+          snyk code test \
+            --org="$SNYK_ORG" \
+            --severity-threshold=high
 
   # ==========================================
   # PUBLISH JOB

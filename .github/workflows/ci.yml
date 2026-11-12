@@ -99,7 +99,6 @@ jobs:
       - name: Snyk dependency scan
         run: |
           snyk test \
-            --org="$SNYK_ORG" \
             --severity-threshold=high \
             --maven-skip-wrapper
 
@@ -107,7 +106,6 @@ jobs:
       - name: Snyk code scan
         run: |
           snyk code test \
-            --org="$SNYK_ORG" \
             --severity-threshold=high
 
   # ==========================================

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sequential TaskFlow API tester: create two tasks, list them, and delete them." />
+  <title>TaskFlow · API Test Console</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand"><span class="brand-icon" aria-hidden="true">TF</span> TaskFlow <span class="brand-light">/ API
+          Test Console</span></div>
+      <span class="environment-label">5-step API check</span>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">MODULE 4 · INTEGRATION TEST</p>
+      <h1 id="page-title">Test the TaskFlow API</h1>
+      <p class="intro">Create two tasks, verify both appear in the list, then delete them. Run each step in order; IDs
+        are captured automatically.</p>
+    </section>
+
+    <section class="configuration panel" aria-labelledby="config-title">
+      <div class="section-header">
+        <div>
+          <h2 id="config-title">API connection</h2>
+          <p>Choose your running backend before starting the sequence.</p>
+        </div>
+        <span class="hint">No API key required</span>
+      </div>
+      <div class="connection-row">
+        <label for="baseUrl">Base URL</label>
+        <input id="baseUrl" type="url" value="http://localhost:8080" spellcheck="false" autocomplete="off"
+          aria-describedby="base-help" />
+        <div class="quick-links" aria-label="API presets">
+          <button type="button" class="preset" data-url="http://localhost:8080">Localhost</button>
+          <button type="button" class="preset"
+            data-url="https://m4-assignment-nelton-taskflow.onrender.com">Render</button>
+        </div>
+      </div>
+      <p class="small-text" id="base-help">Calls <code>/api/tasks</code> at the selected URL. If hosted inside Spring
+        Boot, use the same origin to avoid CORS issues.</p>
+    </section>
+
+    <section class="test-panel panel" aria-labelledby="tests-title">
+      <div class="section-header test-header">
+        <div>
+          <h2 id="tests-title">Test sequence</h2>
+          <p>Only the next step is enabled.</p>
+        </div>
+        <div class="progress-info"><strong id="progressText">0 / 5 complete</strong>
+          <div class="progress-track" role="progressbar" aria-label="Steps completed" aria-valuemin="0"
+            aria-valuemax="5" aria-valuenow="0" id="progressTrack">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <ol class="steps" id="steps">
+        <li class="step current" data-step="0">
+          <div class="step-marker" aria-hidden="true">01</div>
+          <div class="step-body">
+            <div class="step-title"><span class="method post">POST</span>
+              <h3>Create Task 1</h3>
+            </div>
+            <p>POST <code>/api/tasks</code> — “Complete Module 4 assignment”</p>
+            <div class="step-result" id="stepResult0" aria-live="polite">Ready to send request</div>
+          </div>
+          <button type="button" class="run-button" data-action="0">Run step 1</button>
+        </li>
+        <li class="step" data-step="1">
+          <div class="step-marker" aria-hidden="true">02</div>
+          <div class="step-body">
+            <div class="step-title"><span class="method post">POST</span>
+              <h3>Create Task 2</h3>
+            </div>
+            <p>POST <code>/api/tasks</code> — “Review DevSecOps pipeline”</p>
+            <div class="step-result" id="stepResult1" aria-live="polite">Waiting for step 1</div>
+          </div>
+          <button type="button" class="run-button" data-action="1" disabled>Run step 2</button>
+        </li>
+        <li class="step" data-step="2">
+          <div class="step-marker" aria-hidden="true">03</div>
+          <div class="step-body">
+            <div class="step-title"><span class="method get">GET</span>
+              <h3>Get all tasks</h3>
+            </div>
+            <p>GET <code>/api/tasks</code> — verify both new IDs are returned</p>
+            <div class="step-result" id="stepResult2" aria-live="polite">Waiting for step 2</div>
+          </div>
+          <button type="button" class="run-button" data-action="2" disabled>Run step 3</button>
+        </li>
+        <li class="step" data-step="3">
+          <div class="step-marker" aria-hidden="true">04</div>
+          <div class="step-body">
+            <div class="step-title"><span class="method delete">DELETE</span>
+              <h3>Delete Task 1</h3>
+            </div>
+            <p>DELETE <code>/api/tasks/{task1Id}</code></p>
+            <div class="step-result" id="stepResult3" aria-live="polite">Waiting for step 3</div>
+          </div>
+          <button type="button" class="run-button" data-action="3" disabled>Run step 4</button>
+        </li>
+        <li class="step" data-step="4">
+          <div class="step-marker" aria-hidden="true">05</div>
+          <div class="step-body">
+            <div class="step-title"><span class="method delete">DELETE</span>
+              <h3>Delete Task 2</h3>
+            </div>
+            <p>DELETE <code>/api/tasks/{task2Id}</code></p>
+            <div class="step-result" id="stepResult4" aria-live="polite">Waiting for step 4</div>
+          </div>
+          <button type="button" class="run-button" data-action="4" disabled>Run step 5</button>
+        </li>
+      </ol>
+      <div class="footer-row"><span id="finishText">Run step 1 to begin.</span><button class="reset-link" type="button"
+          id="resetButton">Reset sequence</button></div>
+    </section>
+
+    <section class="response-panel panel" aria-labelledby="response-title">
+      <div class="section-header">
+        <div>
+          <h2 id="response-title">Latest response</h2>
+          <p>HTTP status, elapsed time and response body.</p>
+        </div><span class="pill idle" id="responseStatus" aria-live="polite">Not started</span>
+      </div>
+      <div class="response-meta" id="responseMeta">No requests have been sent.</div>
+      <pre class="response-output" id="responseBody" tabindex="0">The API response will appear here.</pre>
+    </section>
+    <p class="footnote">This page performs real POST and DELETE requests against the chosen API. Use a test environment
+      if you do not want to modify live data.</p>
+  </main>
+</body>
+
+</html>

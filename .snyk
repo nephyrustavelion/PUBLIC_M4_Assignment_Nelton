@@ -1,0 +1,26 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JAVA-ORGGLASSFISHJAXB-20883142:
+    - '*':
+        reason: >-
+          Temporary risk exception: upstream XXE fix not yet released. Review
+          XML input exposure and upgrade JAXB when a fixed version is available.
+        expires: 2026-12-31T00:00:00.000Z
+        created: 2026-11-12T12:26:22.240Z
+  SNYK-JAVA-CHQOSLOGBACK-19882330:
+    - '*':
+        reason: >-
+          Temporary exception pending Logback upgrade and review of
+          SiftingAppender/MDC configuration.
+        expires: 2026-12-31T00:00:00.000Z
+        created: 2026-11-12T12:29:53.199Z
+  SNYK-JAVA-CHQOSLOGBACK-20824362:
+    - '*':
+        reason: >-
+          Temporary exception pending Logback upgrade and review of
+          SiftingAppender/MDC configuration.
+        expires: 2026-12-31T00:00:00.000Z
+        created: 2026-11-12T12:29:59.935Z
+patch: {}

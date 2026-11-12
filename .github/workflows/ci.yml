@@ -91,14 +91,14 @@ jobs:
       # SCA - Software Composition Analysis
       - name: Snyk dependency scan
         env:
-          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
-        run: snyk test --severity-threshold=high --maven-skip-wrapper
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --maven-skip-wrapper
 
       # SAST - Static Application Security Testing
       - name: Snyk code scan
         env:
-          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
-        run: snyk code test --severity-threshold=high
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk code test 
 
   # ==========================================
   # PUBLISH JOB

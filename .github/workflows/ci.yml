@@ -105,6 +105,7 @@ jobs:
 
       # SAST - Source code scanning
       - name: Snyk code scan
+        if: ${{ success() || failure() }}
         run: |
           snyk code test \
             --severity-threshold=high

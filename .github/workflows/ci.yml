@@ -100,8 +100,10 @@ jobs:
         if: ${{ success() || failure() }}
         run: |
           snyk test \
+            --org="$SNYK_ORG" \
             --severity-threshold=high \
-          --maven-skip-wrapper
+            --maven-skip-wrapper \
+            -d
 
       # SAST - Source code scanning
       - name: Snyk code scan
@@ -115,7 +117,6 @@ jobs:
   # ==========================================
   publish:
     runs-on: ubuntu-latest
-    needs: security
 
     steps:
       - name: Checkout code

@@ -159,3 +159,65 @@ jobs:
 
           cache-from: type=gha,scope=taskflow
           cache-to: type=gha,scope=taskflow,mode=max
+
+  # ==========================================
+  # DEPLOY JOB
+  # Redeploy TaskFlow API on Render
+  # ==========================================
+  deploy:
+    runs-on: ubuntu-latest
+    needs: publish
+
+    # Deploy only when pushing to main
+    if: github.ref == 'refs/heads/main'
+
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      RENDER_CLI_VERSION: "2.7.0"
+
+    steps:
+      # Install Render CLI
+      - name: Install Render CLI
+        run: |
+          curl -fsSL -o /tmp/render.zip \
+            "https://github.com/render-oss/cli/releases/download/v${RENDER_CLI_VERSION}/cli_${RENDER_CLI_VERSION}_linux_amd64.zip"
+
+          mkdir -p /tmp/render
+          unzip -q /tmp/render.zip -d /tmp/render
+
+          sudo mv \
+            "/tmp/render/cli_v${RENDER_CLI_VERSION}" \
+            /usr/local/bin/render
+
+          render --version
+
+      # Trigger Render deployment
+      - name: Redeploy application on Render
+        run: |
+          set -eu
+
+          : "${RENDER_API_KEY:?Missing RENDER_API_KEY}"
+          : "${RENDER_SERVICE_ID:?Missing RENDER_SERVICE_ID}"
+
+          echo "Deploying TaskFlow API to Render..."
+
+          render deploys create "$RENDER_SERVICE_ID" \
+            --image "docker.io/nephyrustavelion/taskflow:sha-${GITHUB_SHA::7}" \
+            --wait \
+            --confirm \
+            --output text
+
+          echo "Render deployment completed."
+
+      # Verify deployed API
+      - name: Verify Render API
+        run: |
+          curl --fail-with-body \
+            --silent \
+            --show-error \
+            --retry 3 \
+            --retry-delay 5 \
+            https://m4-assignment-nelton-taskflow.onrender.com/api/tasks
+
+          echo "TaskFlow API is responding."

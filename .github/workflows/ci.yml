@@ -98,9 +98,10 @@ jobs:
       # SCA - Dependency scanning
       - name: Snyk dependency scan
         run: |
-          snyk test \
-            --severity-threshold=high \
-            --maven-skip-wrapper
+          snyk test
+      #          snyk test \
+      #            --severity-threshold=high \
+      #          --maven-skip-wrapper
 
       # SAST - Source code scanning
       - name: Snyk code scan

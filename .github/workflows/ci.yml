@@ -65,6 +65,9 @@ jobs:
   # ==========================================
   # SECURITY JOB - Snyk SCA + SAST
   # ==========================================
+  # ==========================================
+  # SECURITY JOB - Snyk SCA + SAST
+  # ==========================================
   security:
     runs-on: ubuntu-latest
     needs: test
@@ -85,20 +88,46 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install Snyk CLI
-        run: npm install -g snyk
+      # Verify Maven and prepare dependencies
+      - name: Verify Maven
+        run: mvn -version
 
-      # SCA - Software Composition Analysis
+      - name: Prepare Maven dependencies
+        run: mvn -B -ntp clean install -DskipTests
+
+      # Install the Snyk version tested locally
+      - name: Install Snyk CLI
+        run: |
+          npm install -g snyk@1.1308.4
+          snyk --version
+
+      # Verify token is supplied, without printing it
+      - name: Check Snyk token
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          if [ -z "$SNYK_TOKEN" ]; then
+            echo "SNYK_TOKEN is missing"
+            exit 1
+          fi
+          echo "SNYK_TOKEN is configured"
+
+      # SCA - Maven dependency scanning
       - name: Snyk dependency scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --maven-skip-wrapper
+        run: |
+          snyk test \
+            --severity-threshold=high \
+            --maven-skip-wrapper \
+            -d
 
-      # SAST - Static Application Security Testing
+      # SAST - Java source code scanning
       - name: Snyk code scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk code test 
+        run: |
+          snyk code test --severity-threshold=high
 
   # ==========================================
   # PUBLISH JOB

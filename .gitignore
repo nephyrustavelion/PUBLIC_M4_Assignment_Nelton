@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Generated Docker image archives
+*.tar
+
+# Maven build output
+target/

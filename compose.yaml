@@ -1,0 +1,25 @@
+services:
+  app:
+    build: .
+    image: taskflow:local
+    ports:
+      - "8080:8080"
+
+  snyk:
+    image: snyk/snyk:maven-3-jdk-21
+    profiles:
+      - security
+    working_dir: /app
+    volumes:
+      - .:/app
+      - snyk-maven-cache:/root/.m2
+    environment:
+      SNYK_TOKEN: ${SNYK_TOKEN:?SNYK_TOKEN is required}
+    command:
+      - snyk
+      - test
+      - --severity-threshold=high
+      - --maven-skip-wrapper
+
+volumes:
+  snyk-maven-cache:

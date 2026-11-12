@@ -48,7 +48,100 @@ Option 1 added github actions
 Option 2 to do
 
 Option 3 not doing
+Using Postman, using the render url of these, it should work, refer to screenshot 
+
+POST task 1
+POST task 2
+GET tasks
+DELETE task 1
+DELETE task 2
 
 Option 4 did, explain how the ci.yml works
 
+
 Option 5 can use chatgpt to try to do
+Snyk token saved in .env
+
+Added compose.yaml, to run Snyk scan:
+SCA - Scan Maven Dependencies
+docker compose --profile security run --rm --no-deps snyk
+
+
+SAST — Scan Java source code
+docker compose --profile security run --rm --no-deps snyk snyk test --severity-threshold=high --maven-skip-wrapper
+
+C. Container scan — Scan your Docker image
+First build your application:
+docker compose build app
+Export the resulting image:
+docker save taskflow:local -o taskflow-image.tar
+Then scan that archive using the same Snyk container:
+docker compose --profile security run --rm --no-deps snyk snyk container test docker-archive:taskflow-image.tar --file=Dockerfile --severity-threshold=high
+
+
+
+Added dependabot.yml file
+
+Added zap-baseline.yml for OWASP
+
+--
+
+Other optimisation code lines did for dockerfile and ci.yml
+
+From lesson 4.16, added this line in dockerfile 
+RUN mvn -B dependency:go-offline
+So that depedencies are cache locally and reduce the time took to build. 
+--
+
+The important lines are:
+
+cache-from
+cache-from: type=gha,scope=taskflow
+
+Retrieves cached Docker build layers from GitHub Actions' cache storage.
+
+cache-to
+cache-to: type=gha,scope=taskflow,mode=max
+From lesson 4.11 or 4.12, these lines in ci.yml, after github actions ran, instead of:
+GitHub Actions (Run 1)
+    ↓
+Set up Java 21
+    ↓
+Download Maven dependencies
+    ↓
+Compile → Test → Package
+
+GitHub Actions (Run 2)
+    ↓
+Set up Java 21
+    ↓
+Download Maven dependencies AGAIN
+    ↓
+Compile → Test → Package
+
+it is:
+GitHub Actions (Run 1)
+    ↓
+Set up Java 21
+    ↓
+Cache MISS
+    ↓
+Download Maven dependencies
+    ↓
+Compile → Test → Package
+    ↓
+Save Maven dependency cache
+
+GitHub Actions (Run 2)
+    ↓
+Set up Java 21
+    ↓
+Cache HIT
+    ↓
+Restore downloaded dependencies
+    ↓
+Compile → Test → Package
+
+Note the portion before compile test package. 
+
+--

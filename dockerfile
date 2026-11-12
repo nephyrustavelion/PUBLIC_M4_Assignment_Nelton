@@ -3,9 +3,23 @@
 # Stage 1: Build the JAR application
 FROM maven:3.9.4-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY . .
-RUN mvn clean package -DskipTests 
+# Copy Maven configuration first
+COPY pom.xml .
+
+# Download dependencies separately for caching
+RUN mvn -B dependency:go-offline
+
+## Remove the previous offline dependencies cache Download new dependencies
+#RUN rm -rf ~/.m2/repository && mvn dependency:go-offline
+
+# Copy application source code
+COPY src ./src
+
+# Compile and package the application
+RUN mvn -B clean package -DskipTests
 # -DskipTests means Skips executing tests, but normally still compiles test code
+
+
 
 # Stage 2: Run the JAR in a slim runtime image
 FROM eclipse-temurin:21-jre-alpine AS runtime

@@ -141,10 +141,11 @@ jobs:
         with:
           images: ${{ secrets.DOCKER_USERNAME }}/taskflow
           flavor: |
-            latest=auto
+            latest=false
           tags: |
             type=sha,prefix=sha-,enable=${{ github.ref_type == 'branch' }}
             type=semver,pattern={{version}}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       # Build, cache and publish
       - name: Build and push Docker image

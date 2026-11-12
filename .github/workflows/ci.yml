@@ -67,7 +67,7 @@ jobs:
   # ==========================================
   security:
     runs-on: ubuntu-latest
-    needs: test
+    # needs: test
 
     env:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -87,7 +87,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "20"
 
       - name: Prepare Maven dependencies
         run: mvn -B -ntp clean install -DskipTests
@@ -97,13 +97,11 @@ jobs:
 
       # SCA - Dependency scanning
       - name: Snyk dependency scan
-        if: ${{ success() || failure() }}
         run: |
           snyk test \
             --org="$SNYK_ORG" \
             --severity-threshold=high \
             --maven-skip-wrapper \
-            -d
 
       # SAST - Source code scanning
       - name: Snyk code scan
@@ -117,6 +115,7 @@ jobs:
   # ==========================================
   publish:
     runs-on: ubuntu-latest
+    # needs: security
 
     steps:
       - name: Checkout code

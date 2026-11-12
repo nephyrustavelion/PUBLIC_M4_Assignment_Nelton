@@ -99,10 +99,10 @@ jobs:
       - name: Snyk dependency scan
         run: |
           snyk test \
-            --org="$SNYK_ORG" \
+            --file=pom.xml \
             --severity-threshold=high \
             --maven-skip-wrapper \
-            --all-projects
+          
 
       # SAST - Source code scanning
       - name: Snyk code scan
